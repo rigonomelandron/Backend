@@ -27,7 +27,7 @@ let urlDB;
 //} else {
 
 
-urlDB ='mongodb+srv://cafe-user:anaisabel18@cluster0-svxzh.mongodb.net/cafe?retryWrites=true&w=majority';
+urlDB =process.env.MONGO_URI;
 
 //}
 process.env.URLDB = urlDB;
