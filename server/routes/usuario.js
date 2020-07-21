@@ -1,5 +1,7 @@
 const express = require('express');
-const Usuario = require('../models/usuario');//modelo del usuario
+const Usuario = require('../models/usuario');//modelo del 
+
+const { verificaToken, verificaAdmin_Role } = require('../middlewares/autenticacion');
 const bcrypt = require('bcryptjs');// encryptar contraseña
 const _ = require('underscore');
 
@@ -8,8 +10,9 @@ const app = express();
 
 
 
-app.get('/usuario', function (req, res) {
+app.get('/usuario', verificaToken,(req, res)=> {
 
+    // la request(req) que recibo es la que me envia verificaToken
     let desde = req.query.desde || 0;
      desde = Number(desde);
 
@@ -29,7 +32,7 @@ app.get('/usuario', function (req, res) {
                         });
                     }
 
-                    Usuario.count({estado:true},(err,conteo)=>{
+                    Usuario.countDocuments({estado:true},(err,conteo)=>{
                          res.json({
                          ok: true,
                          usuarios,
@@ -45,7 +48,7 @@ app.get('/usuario', function (req, res) {
 
 
 })
-app.post('/usuario', function (req, res) {
+app.post('/usuario', [verificaToken, verificaAdmin_Role], function (req, res) {
 
     //capturo las entrada del body
     let body = req.body;
@@ -80,12 +83,12 @@ app.post('/usuario', function (req, res) {
    
 
 })
-app.put('/usuario/:id', function (req, res) {
+app.put('/usuario/:id', [verificaToken, verificaAdmin_Role], function (req, res) {
 
     //capturar el parametro id para usarlos
     let id = req.params.id;
 
-    //usamos uderscore que definimos arriba con el guion bajo y su metodo pick para
+    //usamos uNderscore que definimos arriba con el guion bajo y su metodo pick para
     //decirle que campos queremos que se puedan actualizar .
     let body = _.pick(req.body, ['name', 'email','img', 'role', 'estado'] );
 
@@ -107,7 +110,7 @@ if(err){
 
     
 })
-app.delete('/usuario/:id', function (req, res) {
+app.delete('/usuario/:id', [verificaToken, verificaAdmin_Role], function (req, res) {
     let id = req.params.id;
 
     let cambiarEstado = {
